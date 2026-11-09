@@ -5,186 +5,293 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NovaStore Admin</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{box-sizing:border-box}
-
 body{
-  margin:0;
-  background:#0b0d12;
-  color:white;
-  font-family:Arial,sans-serif;
-  padding:22px;
+ margin:0;background:#0b0d14;color:#f4f5fa;
+ font-family:Arial,sans-serif;
 }
-
-.container{max-width:850px;margin:auto}
-
-h1{color:#8b9cff}
-
-.card{
-  background:#171b25;
-  padding:20px;
-  border-radius:14px;
-  margin:18px 0;
-}
-
-input,textarea{
-  width:100%;
-  padding:13px;
-  margin:8px 0;
-  background:#252b38;
-  color:white;
-  border:1px solid #41495c;
-  border-radius:8px;
-}
-
-button{
-  padding:12px 18px;
-  background:#7185ff;
-  color:white;
-  border:0;
-  border-radius:8px;
-  margin:5px;
-  cursor:pointer;
-}
-
-button:disabled{opacity:.5;cursor:not-allowed}
-
-.secondary{background:#343b4b}
-
-.product{
-  padding:14px;
-  border-bottom:1px solid #343b4b;
-}
-
+button,input,textarea{font:inherit}
+button{cursor:pointer}
 .hidden{display:none!important}
 
-#status{color:#aab7ff}
-#loginStatus,#formStatus,#resetStatus{color:#aab7ff;overflow-wrap:anywhere}
+.app{display:flex;min-height:100vh}
+.sidebar{
+ width:245px;background:#111522;border-right:1px solid #252b3b;
+ padding:26px 17px;position:fixed;inset:0 auto 0 0;
+ display:flex;flex-direction:column;z-index:5;
+}
+.brand{font-size:23px;font-weight:bold;color:#a1aaff;padding:8px 12px}
+.brand small{display:block;font-size:11px;color:#858da4;margin-top:7px}
+.nav{margin-top:35px}
+.nav button{
+ width:100%;display:flex;gap:12px;align-items:center;
+ background:transparent;color:#aab1c4;border:0;
+ padding:14px;border-radius:10px;text-align:left;margin:4px 0;
+}
+.nav button.active,.nav button:hover{
+ background:#252d48;color:#fff;
+}
+.sidebar-bottom{margin-top:auto;padding:12px;color:#777f94;font-size:12px}
+.main{margin-left:245px;width:calc(100% - 245px);padding:30px 35px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:30px}
+.topbar h1{font-size:25px;margin:0}
+.topbar p{color:#8e96aa;font-size:13px}
+.admin-tag{background:#202944;padding:11px 15px;border-radius:10px;color:#bac5ff;font-size:12px}
+.page{display:none}
+.page.active{display:block}
+.heading{margin-bottom:22px}
+.heading h2{margin:0 0 7px;font-size:22px}
+.heading p{color:#8d95a9;margin:0;font-size:13px}
 
+.stats{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:17px;margin-bottom:25px;
+}
+.stat{
+ background:#151b2a;border:1px solid #252d40;
+ padding:21px;border-radius:15px;
+}
+.stat-label{color:#929bb0;font-size:12px}
+.stat-number{font-size:29px;font-weight:bold;margin-top:12px}
+.stat-icon{font-size:20px;margin-bottom:13px}
+
+.panel{
+ background:#151b2a;border:1px solid #252d40;
+ padding:23px;border-radius:15px;margin-bottom:22px;
+}
+.panel h3{margin:0 0 17px;font-size:17px}
+
+.toolbar{display:flex;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.search{flex:1;min-width:180px}
+input,textarea{
+ width:100%;background:#0e1422;color:white;
+ border:1px solid #30394e;border-radius:9px;
+ padding:13px;margin:7px 0;outline:none;
+}
+input:focus,textarea:focus{border-color:#8494ff}
+textarea{min-height:85px;resize:vertical}
+.primary{
+ background:#7486ff;color:white;border:0;
+ padding:12px 17px;border-radius:9px;
+}
+.secondary{
+ background:#30394d;color:#e4e8f5;border:0;
+ padding:11px 15px;border-radius:9px;
+}
+.danger{background:#702d3b;color:white;border:0;padding:9px 12px;border-radius:8px}
+.product-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:17px;
+}
+.product-card{
+ background:#1b2232;border:1px solid #2b3449;
+ border-radius:13px;overflow:hidden;min-width:0;
+}
+.product-image{
+ width:100%;height:175px;object-fit:cover;
+ background:#252e41;display:block;
+}
+.no-image{
+ height:175px;background:#20283a;
+ display:flex;align-items:center;justify-content:center;
+ color:#8993aa;font-size:13px;
+}
+.product-info{padding:14px}
+.product-info h4{margin:0 0 8px;font-size:15px;overflow-wrap:anywhere}
+.product-info p{color:#9da6bb;font-size:12px;margin:6px 0}
+.product-price{color:#a8b2ff;font-weight:bold;font-size:17px}
+.product-actions{display:flex;gap:7px;margin-top:14px}
+.product-actions button{flex:1;font-size:12px;padding:10px 5px}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-grid .full{grid-column:1/-1}
+.form-actions{display:flex;gap:10px;margin-top:10px}
+.status{color:#aab7ff;font-size:13px;margin-top:12px;overflow-wrap:anywhere}
+.empty{padding:35px;text-align:center;color:#8c96aa}
+.logout{background:#352c40;color:#f0c5d2;width:100%;padding:12px;border:0;border-radius:9px}
+
+@media(max-width:900px){
+ .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .main{padding:25px 20px}
+}
+@media(max-width:650px){
+ .sidebar{width:68px;padding:18px 7px}
+ .brand{font-size:0;padding:10px;text-align:center}
+ .brand:after{content:"N";font-size:23px}
+ .brand small{display:none}
+ .nav button{justify-content:center;font-size:0;padding:15px 5px}
+ .nav button span{font-size:20px}
+ .sidebar-bottom{padding:5px}
+ .logout{font-size:0;padding:12px 2px}
+ .logout:after{content:"↪";font-size:20px}
+ .main{margin-left:68px;width:calc(100% - 68px);padding:20px 12px}
+ .topbar h1{font-size:19px}
+ .admin-tag{font-size:10px;padding:9px}
+ .stats{grid-template-columns:1fr;gap:10px}
+ .stat{padding:15px}
+ .stat-number{font-size:24px}
+ .product-grid{grid-template-columns:1fr}
+ .product-image,.no-image{height:190px}
+ .form-grid{grid-template-columns:1fr}
+ .form-grid .full{grid-column:auto}
+ .panel{padding:16px}
+}
 </style>
 </head>
 
 <body>
-<div class="container">
 
-<h1>NovaStore Admin</h1>
-<p>Product management dashboard</p>
-
-<!-- ADMIN LOGIN -->
-
-<div class="card" id="login">
-
-<h2>Admin Login</h2>
-
-<input id="email" type="email" placeholder="Admin email" autocomplete="username">
-
-<input id="password" type="password" placeholder="Password" autocomplete="current-password">
-
-<button id="loginBtn">Login</button>
-
-<button id="forgotBtn" class="secondary" type="button">
-Forgot password?
-</button>
-
-<p id="loginStatus"></p>
-
+<!-- LOGIN -->
+<div id="loginScreen" style="max-width:390px;margin:100px auto;padding:25px">
+ <div class="panel">
+  <h1 style="color:#a1aaff">NovaStore</h1>
+  <p style="color:#929bb0">Admin Control Centre</p>
+  <input id="email" type="email" placeholder="Admin email">
+  <input id="password" type="password" placeholder="Password">
+  <button class="primary" id="loginBtn" style="width:100%">Login</button>
+  <p id="loginMessage" class="status"></p>
+ </div>
 </div>
 
-<!-- PASSWORD RESET REQUEST -->
+<!-- APP -->
+<div class="app hidden" id="app">
 
-<div class="card hidden" id="forgotBox">
+<aside class="sidebar">
+ <div class="brand">NovaStore<small>ADMIN PANEL</small></div>
 
-<h2>Reset Password</h2>
+ <div class="nav">
+  <button class="active" data-page="dashboardPage"><span>▦</span> Dashboard</button>
+  <button data-page="productsPage"><span>▣</span> Products</button>
+  <button data-page="addPage"><span>＋</span> Add Product</button>
+ </div>
 
-<p>Enter your admin email to receive a password reset link.</p>
+ <div class="sidebar-bottom">
+  <button class="logout" id="logoutBtn">Logout</button>
+ </div>
+</aside>
 
-<input id="resetEmail" type="email" placeholder="Your admin email">
+<main class="main">
 
-<button id="sendResetBtn">Send Reset Link</button>
+<header class="topbar">
+ <div>
+  <h1>NovaStore Admin</h1>
+  <p>Manage your online store</p>
+ </div>
+ <div class="admin-tag">● ADMIN ACCESS</div>
+</header>
 
-<button id="backLoginBtn" class="secondary">Back to Login</button>
+<!-- DASHBOARD PAGE -->
+<section class="page active" id="dashboardPage">
 
-<p id="resetStatus"></p>
+ <div class="heading">
+  <h2>Overview</h2>
+  <p>Here's what's happening in your store.</p>
+ </div>
 
-</div>
+ <div class="stats">
+  <div class="stat">
+   <div class="stat-icon">▣</div>
+   <div class="stat-label">Total Products</div>
+   <div class="stat-number" id="totalProducts">0</div>
+  </div>
+  <div class="stat">
+   <div class="stat-icon">◈</div>
+   <div class="stat-label">Categories</div>
+   <div class="stat-number" id="totalCategories">0</div>
+  </div>
+  <div class="stat">
+   <div class="stat-icon">▧</div>
+   <div class="stat-label">Products with Photos</div>
+   <div class="stat-number" id="photoProducts">0</div>
+  </div>
+ </div>
 
-<!-- CHOOSE NEW PASSWORD -->
+ <div class="panel">
+  <h3>Recently Added Products</h3>
+  <div id="recentProducts" class="product-grid">
+   <div class="empty">Loading...</div>
+  </div>
+ </div>
 
-<div class="card hidden" id="newPasswordBox">
+</section>
 
-<h2>Choose a New Password</h2>
+<!-- PRODUCTS PAGE -->
+<section class="page" id="productsPage">
 
-<input id="newPassword" type="password" placeholder="New password" autocomplete="new-password">
+ <div class="heading">
+  <h2>All Products</h2>
+  <p>Manage your clothing collection.</p>
+ </div>
 
-<input id="confirmPassword" type="password" placeholder="Confirm new password" autocomplete="new-password">
+ <div class="panel">
+  <div class="toolbar">
+   <input class="search" id="searchProducts" placeholder="Search products...">
+   <button class="primary" id="goAdd">+ Add Product</button>
+  </div>
 
-<button id="savePasswordBtn">Save New Password</button>
+  <div class="product-grid" id="productGrid">
+   <div class="empty">Loading products...</div>
+  </div>
+ </div>
 
-<p id="newPasswordStatus"></p>
+</section>
 
-</div>
+<!-- ADD PRODUCT PAGE -->
+<section class="page" id="addPage">
 
-<!-- DASHBOARD -->
+ <div class="heading">
+  <h2>Add New Product</h2>
+  <p>Add a new item to your NovaStore collection.</p>
+ </div>
 
-<div id="dashboard" class="hidden">
+ <div class="panel">
+  <form id="productForm">
+   <div class="form-grid">
 
-<div class="card">
+    <div class="full">
+     <label>Product Name</label>
+     <input id="name" placeholder="e.g. Classic Black T-Shirt" required>
+    </div>
 
-<h2>Welcome, Admin</h2>
+    <div>
+     <label>Price (KSh)</label>
+     <input id="price" type="number" min="0.01" step="0.01" placeholder="799" required>
+    </div>
 
-<button id="logoutBtn" class="secondary">Logout</button>
+    <div>
+     <label>Category</label>
+     <input id="category" placeholder="T-Shirts, Trousers...">
+    </div>
 
-</div>
+    <div class="full">
+     <label>Product Image URL</label>
+     <input id="image" type="url" placeholder="Paste your product image link">
+    </div>
 
-<!-- ADD PRODUCT -->
+    <div class="full">
+     <label>Description</label>
+     <textarea id="description" placeholder="Describe your product..."></textarea>
+    </div>
 
-<div class="card">
+   </div>
 
-<h2>Add Product</h2>
+   <div class="form-actions">
+    <button type="submit" class="primary" id="addBtn">Save Product</button>
+    <button type="reset" class="secondary">Clear</button>
+   </div>
+  </form>
+  <p id="formStatus" class="status"></p>
+ </div>
 
-<form id="productForm">
+</section>
 
-<input id="name" placeholder="Product name" required>
-
-<textarea id="description" placeholder="Description"></textarea>
-
-<input id="price" type="number" step="0.01" placeholder="Price (KSh)" required>
-
-<input id="image" type="url" placeholder="Product image URL">
-
-<input id="category" placeholder="Category">
-
-<button type="submit">Add Product</button>
-
-</form>
-
-<p id="formStatus"></p>
-
-</div>
-
-<!-- PRODUCTS -->
-
-<div class="card">
-
-<h2>Products</h2>
-
-<div id="products">Loading products...</div>
-
-</div>
-
-</div>
-
-<p id="status"></p>
-
+</main>
 </div>
 
 <script>
-
-// SUPABASE CONNECTION
-
 const SUPABASE_URL =
 "https://twocjhhwvpcclipinajd.supabase.co";
 
@@ -192,360 +299,296 @@ const SUPABASE_KEY =
 "sb_publishable_MTOuE34uvfSjNX1-S03yJQ_I7A3pmcx";
 
 const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+ SUPABASE_URL,
+ SUPABASE_KEY
 );
 
+const $ = id => document.getElementById(id);
 
-// ELEMENTS
-
-const loginBox = document.getElementById("login");
-const dashboard = document.getElementById("dashboard");
-const forgotBox = document.getElementById("forgotBox");
-const newPasswordBox = document.getElementById("newPasswordBox");
+let allProducts = [];
 
 
-// SHOW LOGIN
-
-function showLogin(){
-
-  loginBox.classList.remove("hidden");
-  dashboard.classList.add("hidden");
-  forgotBox.classList.add("hidden");
-  newPasswordBox.classList.add("hidden");
-
-}
-
-
-// CHECK ADMIN ACCESS
+// LOGIN CHECK
 
 async function checkAdmin(){
+ const {data,error} = await db.auth.getSession();
 
-  const {data,error} = await db.auth.getSession();
+ if(error || !data.session){
+  showLogin();
+  return;
+ }
 
-  if(error){
-    document.getElementById("loginStatus").textContent =
-      error.message;
-    showLogin();
-    return;
-  }
+ const {data:allowed,error:adminError} =
+  await db.rpc("is_novatore_admin");
 
-  const session = data.session;
+ if(adminError || allowed !== true){
+  await db.auth.signOut();
+  showLogin();
+  $("loginMessage").textContent =
+   adminError ? adminError.message :
+   "This account is not authorised as an admin.";
+  return;
+ }
 
-  if(!session){
-    showLogin();
-    return;
-  }
+ $("loginScreen").classList.add("hidden");
+ $("app").classList.remove("hidden");
 
-  // VERIFY ADMIN THROUGH SUPABASE
+ await loadProducts();
+}
 
-  const result = await db.rpc("is_novatore_admin");
-
-  if(result.error || result.data !== true){
-
-    await db.auth.signOut();
-
-    showLogin();
-
-    document.getElementById("loginStatus").textContent =
-      result.error
-        ? result.error.message
-        : "This account is not authorised as an admin.";
-
-    return;
-  }
-
-  loginBox.classList.add("hidden");
-  forgotBox.classList.add("hidden");
-  newPasswordBox.classList.add("hidden");
-
-  dashboard.classList.remove("hidden");
-
-  loadProducts();
-
+function showLogin(){
+ $("app").classList.add("hidden");
+ $("loginScreen").classList.remove("hidden");
 }
 
 
-// LOGIN
+// LOGIN BUTTON
 
-document.getElementById("loginBtn").onclick = async () => {
+$("loginBtn").onclick = async () => {
+ const email = $("email").value.trim();
+ const password = $("password").value;
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+ if(!email || !password){
+  $("loginMessage").textContent =
+   "Enter your email and password.";
+  return;
+ }
 
-  const button = document.getElementById("loginBtn");
-  const message = document.getElementById("loginStatus");
+ $("loginBtn").disabled = true;
+ $("loginMessage").textContent = "Signing in...";
 
-  if(!email || !password){
-    message.textContent = "Enter your email and password.";
-    return;
-  }
+ const {error} = await db.auth.signInWithPassword({
+  email,password
+ });
 
-  button.disabled = true;
-  message.textContent = "Logging in...";
+ $("loginBtn").disabled = false;
 
-  const {error} = await db.auth.signInWithPassword({
-    email,
-    password
-  });
+ if(error){
+  $("loginMessage").textContent = error.message;
+  return;
+ }
 
-  button.disabled = false;
-
-  if(error){
-    message.textContent = error.message;
-    return;
-  }
-
-  await checkAdmin();
-
+ await checkAdmin();
 };
 
 
-// FORGOT PASSWORD SCREEN
+// NAVIGATION
 
-document.getElementById("forgotBtn").onclick = () => {
+function navigate(page){
+ document.querySelectorAll(".page").forEach(p =>
+  p.classList.remove("active")
+ );
 
-  const email = document.getElementById("email").value.trim();
+ $(page).classList.add("active");
 
-  document.getElementById("resetEmail").value = email;
+ document.querySelectorAll(".nav button").forEach(b =>
+  b.classList.toggle("active",b.dataset.page === page)
+ );
 
-  loginBox.classList.add("hidden");
-  forgotBox.classList.remove("hidden");
+ window.scrollTo(0,0);
+}
 
-};
-
-
-// BACK TO LOGIN
-
-document.getElementById("backLoginBtn").onclick = () => {
-
-  forgotBox.classList.add("hidden");
-  loginBox.classList.remove("hidden");
-
-};
-
-
-// SEND PASSWORD RESET EMAIL
-
-document.getElementById("sendResetBtn").onclick = async () => {
-
-  const email = document.getElementById("resetEmail").value.trim();
-
-  const button = document.getElementById("sendResetBtn");
-  const message = document.getElementById("resetStatus");
-
-  if(!email){
-    message.textContent = "Enter your email first.";
-    return;
-  }
-
-  button.disabled = true;
-  message.textContent = "Sending reset link...";
-
-  const redirectURL =
-    window.location.origin + window.location.pathname;
-
-  const {error} = await db.auth.resetPasswordForEmail(email,{
-    redirectTo: redirectURL
-  });
-
-  button.disabled = false;
-
-  message.textContent = error
-    ? error.message
-    : "If this email belongs to an account, a password reset link has been sent. Check your inbox.";
-
-};
-
-
-// HANDLE PASSWORD RECOVERY
-
-db.auth.onAuthStateChange((event,session) => {
-
-  if(event === "PASSWORD_RECOVERY"){
-
-    loginBox.classList.add("hidden");
-    dashboard.classList.add("hidden");
-    forgotBox.classList.add("hidden");
-
-    newPasswordBox.classList.remove("hidden");
-
-    document.getElementById("newPasswordStatus").textContent =
-      "Enter your new password.";
-
-  }
-
-  if(event === "SIGNED_OUT"){
-    showLogin();
-  }
-
+document.querySelectorAll(".nav button").forEach(button => {
+ button.onclick = () => navigate(button.dataset.page);
 });
 
-
-// SAVE NEW PASSWORD
-
-document.getElementById("savePasswordBtn").onclick = async () => {
-
-  const password =
-    document.getElementById("newPassword").value;
-
-  const confirm =
-    document.getElementById("confirmPassword").value;
-
-  const button = document.getElementById("savePasswordBtn");
-  const message = document.getElementById("newPasswordStatus");
-
-  if(password.length < 8){
-    message.textContent = "Password must contain at least 8 characters.";
-    return;
-  }
-
-  if(password !== confirm){
-    message.textContent = "Passwords do not match.";
-    return;
-  }
-
-  button.disabled = true;
-  message.textContent = "Updating password...";
-
-  const {error} = await db.auth.updateUser({
-    password: password
-  });
-
-  button.disabled = false;
-
-  if(error){
-    message.textContent = error.message;
-    return;
-  }
-
-  message.textContent = "Password updated successfully!";
-
-  document.getElementById("newPassword").value = "";
-  document.getElementById("confirmPassword").value = "";
-
-  await checkAdmin();
-
-};
+$("goAdd").onclick = () => navigate("addPage");
 
 
 // LOGOUT
 
-document.getElementById("logoutBtn").onclick = async () => {
-
-  const {error} = await db.auth.signOut();
-
-  if(error){
-    document.getElementById("status").textContent = error.message;
-  }
-
-  showLogin();
-
+$("logoutBtn").onclick = async () => {
+ await db.auth.signOut();
+ showLogin();
 };
+
+
+// SAFE ELEMENT CREATION
+
+function makeProductCard(product){
+
+ const card = document.createElement("article");
+ card.className = "product-card";
+
+ if(product.image_url){
+  const img = document.createElement("img");
+  img.className = "product-image";
+  img.src = product.image_url;
+  img.alt = product.name || "Product";
+  img.loading = "lazy";
+  img.onerror = () => {
+   const placeholder = document.createElement("div");
+   placeholder.className = "no-image";
+   placeholder.textContent = "Image unavailable";
+   img.replaceWith(placeholder);
+  };
+  card.appendChild(img);
+ }else{
+  const placeholder = document.createElement("div");
+  placeholder.className = "no-image";
+  placeholder.textContent = "No product photo";
+  card.appendChild(placeholder);
+ }
+
+ const info = document.createElement("div");
+ info.className = "product-info";
+
+ const title = document.createElement("h4");
+ title.textContent = product.name;
+
+ const category = document.createElement("p");
+ category.textContent = product.category || "Uncategorised";
+
+ const price = document.createElement("div");
+ price.className = "product-price";
+ price.textContent = "KSh " + Number(product.price).toLocaleString();
+
+ const actions = document.createElement("div");
+ actions.className = "product-actions";
+
+ const edit = document.createElement("button");
+ edit.className = "secondary";
+ edit.textContent = "Edit";
+ edit.onclick = () => editProduct(product);
+
+ const remove = document.createElement("button");
+ remove.className = "danger";
+ remove.textContent = "Delete";
+ remove.onclick = () => deleteProduct(product.id);
+
+ actions.append(edit,remove);
+ info.append(title,category,price,actions);
+ card.appendChild(info);
+
+ return card;
+}
 
 
 // LOAD PRODUCTS
 
 async function loadProducts(){
 
-  const box = document.getElementById("products");
+ $("productGrid").innerHTML =
+  '<div class="empty">Loading products...</div>';
 
-  box.textContent = "Loading products...";
+ const {data,error} = await db
+  .from("products")
+  .select("*")
+  .order("created_at",{ascending:false});
 
-  const {data,error} = await db
-    .from("products")
-    .select("*")
-    .order("created_at",{ascending:false});
+ if(error){
+  $("productGrid").textContent = error.message;
+  return;
+ }
 
-  if(error){
-    box.textContent = error.message;
-    return;
-  }
+ allProducts = data || [];
 
-  box.innerHTML = "";
+ updateStats();
+ renderProducts(allProducts);
 
-  data.forEach(product => {
+ const recent = $("recentProducts");
+ recent.replaceChildren();
 
-    const item = document.createElement("div");
-    item.className = "product";
+ allProducts.slice(0,3).forEach(product =>
+  recent.appendChild(makeProductCard(product))
+ );
 
-    const title = document.createElement("strong");
-    title.textContent = product.name;
-
-    const price = document.createElement("p");
-    price.textContent = "KSh " + product.price;
-
-    const edit = document.createElement("button");
-    edit.textContent = "Edit";
-
-    edit.onclick = () => editProduct(product);
-
-    const remove = document.createElement("button");
-    remove.textContent = "Delete";
-    remove.className = "secondary";
-
-    remove.onclick = () => deleteProduct(product.id);
-
-    item.append(title,price,edit,remove);
-
-    box.appendChild(item);
-
-  });
-
-  if(!data.length){
-    box.textContent = "No products yet.";
-  }
-
+ if(!allProducts.length){
+  recent.textContent = "No products added yet.";
+ }
 }
+
+
+// UPDATE STATISTICS
+
+function updateStats(){
+
+ $("totalProducts").textContent = allProducts.length;
+
+ const categories = new Set(
+  allProducts
+   .map(p => (p.category || "").trim().toLowerCase())
+   .filter(Boolean)
+ );
+
+ $("totalCategories").textContent = categories.size;
+
+ $("photoProducts").textContent =
+  allProducts.filter(p => p.image_url).length;
+}
+
+
+// RENDER PRODUCT GRID
+
+function renderProducts(products){
+
+ const grid = $("productGrid");
+ grid.replaceChildren();
+
+ if(!products.length){
+  const empty = document.createElement("div");
+  empty.className = "empty";
+  empty.textContent = "No products found.";
+  grid.appendChild(empty);
+  return;
+ }
+
+ products.forEach(product =>
+  grid.appendChild(makeProductCard(product))
+ );
+}
+
+
+// SEARCH
+
+$("searchProducts").oninput = () => {
+
+ const query = $("searchProducts").value.toLowerCase();
+
+ const filtered = allProducts.filter(product =>
+  (product.name || "").toLowerCase().includes(query) ||
+  (product.category || "").toLowerCase().includes(query)
+ );
+
+ renderProducts(filtered);
+};
 
 
 // ADD PRODUCT
 
-document.getElementById("productForm").onsubmit = async (e) => {
+$("productForm").onsubmit = async event => {
+ event.preventDefault();
 
-  e.preventDefault();
+ const product = {
+  name:$("name").value.trim(),
+  description:$("description").value.trim(),
+  price:Number($("price").value),
+  image_url:$("image").value.trim() || null,
+  category:$("category").value.trim()
+ };
 
-  const product = {
+ if(!product.name || !Number.isFinite(product.price) ||
+    product.price <= 0){
+  $("formStatus").textContent = "Check the product name and price.";
+  return;
+ }
 
-    name: document.getElementById("name").value.trim(),
+ $("addBtn").disabled = true;
+ $("formStatus").textContent = "Saving product...";
 
-    description:
-      document.getElementById("description").value,
+ const {error} = await db.from("products").insert(product);
 
-    price:
-      Number(document.getElementById("price").value),
+ $("addBtn").disabled = false;
 
-    image_url:
-      document.getElementById("image").value,
+ if(error){
+  $("formStatus").textContent = error.message;
+  return;
+ }
 
-    category:
-      document.getElementById("category").value
+ $("productForm").reset();
+ $("formStatus").textContent = "Product added successfully!";
 
-  };
-
-  const button = e.target.querySelector("button[type=submit]");
-
-  button.disabled = true;
-
-  const {error} = await db
-    .from("products")
-    .insert(product);
-
-  button.disabled = false;
-
-  document.getElementById("formStatus").textContent =
-    error
-      ? error.message
-      : "Product added successfully!";
-
-  if(!error){
-
-    e.target.reset();
-
-    loadProducts();
-
-  }
-
+ await loadProducts();
 };
 
 
@@ -553,31 +596,31 @@ document.getElementById("productForm").onsubmit = async (e) => {
 
 async function editProduct(product){
 
-  const name = prompt("Product name:",product.name);
+ const name = prompt("Product name:",product.name);
+ if(name === null || !name.trim()) return;
 
-  if(name === null || !name.trim()) return;
+ const price = prompt("Product price:",product.price);
+ if(price === null || !Number.isFinite(Number(price)) ||
+    price.trim() === "" || Number(price) <= 0) return;
 
-  const price = prompt("Product price:",product.price);
+ const category = prompt("Category:",product.category || "");
+ if(category === null) return;
 
-  if(
-    price === null ||
-    price.trim() === "" ||
-    !Number.isFinite(Number(price)) ||
-    Number(price) <= 0
-  ) return;
+ const image = prompt("Image URL:",product.image_url || "");
+ if(image === null) return;
 
-  const {error} = await db
-    .from("products")
-    .update({
-      name:name.trim(),
-      price:Number(price)
-    })
-    .eq("id",product.id);
+ const {error} = await db.from("products")
+  .update({
+   name:name.trim(),
+   price:Number(price),
+   category:category.trim(),
+   image_url:image.trim() || null
+  })
+  .eq("id",product.id);
 
-  alert(error ? error.message : "Product updated!");
+ alert(error ? error.message : "Product updated successfully!");
 
-  loadProducts();
-
+ if(!error) await loadProducts();
 }
 
 
@@ -585,27 +628,23 @@ async function editProduct(product){
 
 async function deleteProduct(id){
 
-  if(!confirm("Are you sure you want to delete this product?")){
-    return;
-  }
+ if(!confirm("Delete this product permanently?")) return;
 
-  const {error} = await db
-    .from("products")
-    .delete()
-    .eq("id",id);
+ const {error} = await db.from("products")
+  .delete()
+  .eq("id",id);
 
-  alert(error ? error.message : "Product deleted!");
+ alert(error ? error.message : "Product deleted.");
 
-  loadProducts();
-
+ if(!error) await loadProducts();
 }
 
 
-// INITIAL CHECK
+// START
 
 checkAdmin();
 
 </script>
-
 </body>
 </html>
+
